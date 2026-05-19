@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 from datetime import date
 import yfinance as yf
 from sklearn.preprocessing import StandardScaler
+from scipy.optimize import brentq
 
 current_date = date.today()
 start_date = (pd.Timestamp.today() - pd.DateOffset(years=10)).strftime('%Y-%m-%d')
@@ -41,6 +42,37 @@ def price_bond(yields, face_value, coupon_rate, maturities):
         present_value = discounted_payments + discounted_face_value
         prices.append(present_value)
     return prices
+
+def bond_metrics(yields, face_value, coupon_rate, maturity):
+    """Return Macaulay duration, modified duration, and convexity for a fixed-coupon bond."""
+    r = np.interp(maturity, yields['Maturity'], yields['Yield']) / 100
+    coupon = face_value * coupon_rate
+    times = np.arange(1, maturity + 1)
+    cash_flows = np.full(maturity, coupon, dtype=float)
+    cash_flows[-1] += face_value
+    discounted = cash_flows / (1 + r) ** times
+    price = discounted.sum()
+    macaulay_duration = (times * discounted).sum() / price
+    modified_duration = macaulay_duration / (1 + r)
+    convexity = ((times ** 2 + times) * discounted).sum() / (price * (1 + r) ** 2)
+    return {
+        'price': price,
+        'macaulay_duration': macaulay_duration,
+        'modified_duration': modified_duration,
+        'convexity': convexity,
+    }
+
+def yield_to_maturity(face_value, coupon_rate, maturity, market_price):
+    """Solve for the yield that equates the bond's DCF value to its market price."""
+    coupon = face_value * coupon_rate
+    times = np.arange(1, maturity + 1)
+    cash_flows = np.full(maturity, coupon, dtype=float)
+    cash_flows[-1] += face_value
+
+    def price_at_yield(r):
+        return (cash_flows / (1 + r) ** times).sum() - market_price
+
+    return brentq(price_at_yield, 1e-6, 10.0)
 
 def graph_bonds(yields):
     """Plot bond price vs maturity for a range of coupon rates using an interactive Plotly slider."""
@@ -151,7 +183,19 @@ def correlation(files):
 if __name__ == '__main__':
     file_list = ['DGS1', 'DGS3', 'DGS5', 'DGS7', 'DGS10']
     current_yields = get_current_yields(file_list)
-    print(f"Bond price: ${price_bond(current_yields, 1000, .05, maturities=[4])[0]:,.2f}")
+
+    face_value, coupon_rate, maturity = 1000, 0.05, 4
+    bond_price = price_bond(current_yields, face_value, coupon_rate, maturities=[maturity])[0]
+    print(f"Bond price: ${bond_price:,.2f}")
+
+    metrics = bond_metrics(current_yields, face_value, coupon_rate, maturity)
+    print(f"Macaulay duration:  {metrics['macaulay_duration']:.4f} years")
+    print(f"Modified duration:  {metrics['modified_duration']:.4f}")
+    print(f"Convexity:          {metrics['convexity']:.4f}")
+
+    ytm = yield_to_maturity(face_value, coupon_rate, maturity, bond_price)
+    print(f"Yield to maturity:  {ytm:.4%}")
+
     graph_bonds(current_yields)
     file_list = ['DGS3MO', 'DGS2', 'DGS10', 'FEDFUNDS']
     yield_curves(file_list)
