@@ -12,7 +12,7 @@ def filepath(filename, base_dir=os.path.join(".", "data")):
 
 def getSPYdata():
     tempdf = yf.download('SPY', interval="1mo")
-    tempdf = tempdf['Adj Close']
+    tempdf = tempdf['Close']['SPY']
     tempdf.name = 'SPY'
     data_to_csv(tempdf, 'SPY')
 
