@@ -2,6 +2,9 @@ import pandas as pd
 from fredapi import Fred
 import os
 import yfinance as yf
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def filepath(filename, base_dir=os.path.join(".", "data")):
     """Return CSV file path given ticker symbol."""
@@ -28,8 +31,9 @@ def data_to_csv(data, filename):
 
 
 if __name__ == '__main__':
-    # Requested from FRED website
-    api_key = '65c759ce023209f366fb4ae5db10160a'
+    api_key = os.environ.get('FRED_API_KEY')
+    if not api_key:
+        raise ValueError("FRED_API_KEY not set. Add it to a .env file or export it as an environment variable.")
     ids = ['DGS3MO', 'DGS1', 'DGS2', 'DGS3', 'DGS5', 'DGS7', 'DGS10', 'FEDFUNDS', 'CPILFESL', 'UNRATE']
     get_fred_data(api_key, ids)
     getSPYdata()
