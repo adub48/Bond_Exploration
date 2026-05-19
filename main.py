@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 from charts import get_current_yields, graph_bonds, yield_curves, correlation
 from pricing import price_bond, bond_metrics, yield_to_maturity
 
@@ -25,3 +27,5 @@ graph_bonds(current_yields)
 history_file_list = ['DGS3MO', 'DGS2', 'DGS10', 'FEDFUNDS']
 yield_curves(history_file_list)
 correlation(history_file_list)
+
+plt.show()

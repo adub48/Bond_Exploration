@@ -21,7 +21,6 @@ def get_current_yields(files):
     plt.xlabel('Maturity')
     plt.ylabel('Yield (%)')
     plt.grid()
-    plt.show()
     return current_yields
 
 def graph_bonds(yields):
@@ -76,7 +75,6 @@ def yield_curves(files):
     plt.ylabel("Yield (%)", fontsize=14)
     plt.legend()
     plt.grid(True)
-    plt.show()
 
 def correlation(files):
     """Plot each of 4 yield series against unemployment, CPI, and SPY, and print the correlation matrix."""
@@ -95,7 +93,7 @@ def correlation(files):
         df[files[i]] = scaler.fit_transform(df[[files[i]]])
         ax.plot(df.index, df[files[i]], label=files[i])
         ax.set_xlabel('Date')
-        ax.set_ylabel('Rate (%)')
+        ax.set_ylabel('Z-Score')
 
         for measurement in measurements:
             data = pd.read_csv(filepath(measurement))
@@ -108,8 +106,7 @@ def correlation(files):
             ax.legend(loc='upper left')
             corrs.loc[measurement, files[i]] = df[files[i]].corr(data[measurement])
 
-    plt.tight_layout()
-    plt.show()
+    plt.tight_layout(h_pad=4.0)
     print("Correlation DataFrame:")
     print(corrs)
     os.makedirs("output", exist_ok=True)
