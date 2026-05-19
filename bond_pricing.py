@@ -8,6 +8,7 @@ import yfinance as yf
 from sklearn.preprocessing import StandardScaler
 
 current_date = date.today()
+start_date = (pd.Timestamp.today() - pd.DateOffset(years=10)).strftime('%Y-%m-%d')
 
 def filepath(filename, base_dir=os.path.join(".", "data")):
     return os.path.join(base_dir, f"{filename}.csv")
@@ -92,7 +93,6 @@ def yield_curves(files):
         df = df.dropna()
         df.set_index('Date', inplace=True)
         df.index = pd.to_datetime(df.index)
-        start_date = '2014-12-05'
         end_date = current_date
         df = df.loc[start_date:end_date]
         plt.plot(df.index, df[file], label= file)
@@ -117,7 +117,6 @@ def correlation(files):
         df = df.dropna()
         df.set_index('Date', inplace=True)
         df.index = pd.to_datetime(df.index)
-        start_date = '2014-12-05'
         end_date = current_date
         df = df.loc[start_date:end_date]
         df[files[i]] = scaler.fit_transform(df[[files[i]]])
@@ -129,7 +128,6 @@ def correlation(files):
             data = data.dropna()
             data.set_index('Date', inplace=True)
             data.index = pd.to_datetime(data.index)
-            start_date = '2014-12-05'
             end_date = current_date
             data = data.loc[start_date:end_date]
             data[measurement] = scaler.fit_transform(data[[measurement]])
