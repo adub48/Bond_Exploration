@@ -11,9 +11,11 @@ current_date = date.today()
 start_date = (pd.Timestamp.today() - pd.DateOffset(years=10)).strftime('%Y-%m-%d')
 
 def filepath(filename, base_dir=os.path.join(".", "data")):
+    """Return the CSV path for a given FRED series or ticker symbol."""
     return os.path.join(base_dir, f"{filename}.csv")
 
 def get_current_yields(files):
+    """Fetch the most recent yield for each maturity, plot the yield curve, and return a DataFrame."""
     plt.figure(1,figsize=(10, 6))
     current_yields = {
         file[3:]: pd.read_csv(filepath(file))[file].iloc[-1]
@@ -29,6 +31,7 @@ def get_current_yields(files):
     return current_yields
 
 def price_bond(yields, face_value, coupon_rate, maturities):
+    """Price a fixed-coupon bond using DCF, interpolating the discount rate from the yield curve."""
     prices = []
     for maturity in maturities:
         discount_rate = np.interp(maturity, yields['Maturity'], yields['Yield'])/100
@@ -40,6 +43,7 @@ def price_bond(yields, face_value, coupon_rate, maturities):
     return prices
 
 def graph_bonds(yields):
+    """Plot bond price vs maturity for a range of coupon rates using an interactive Plotly slider."""
     #Bond parameters
     face_value = 2000  # Face value of the bond
     maturities = np.arange(1, 11)  #Maturity from 1 to 10 years
@@ -87,6 +91,7 @@ def graph_bonds(yields):
     fig.show()
 
 def yield_curves(files):
+    """Plot historical Treasury yields for the given FRED series over the past 10 years."""
     plt.figure(2,figsize=(10, 6))
     for file in files:
         df = pd.read_csv(filepath(file))
@@ -107,6 +112,7 @@ def yield_curves(files):
     plt.show()
 
 def correlation(files):
+    """Plot each of 4 yield series against unemployment, CPI, and SPY, and print the correlation matrix."""
     fig, axs = plt.subplots(2, 2, figsize=(15, 12), num = 3)
     measurements = ['UNRATE', 'CPILFESL', 'SPY']
     scaler = StandardScaler()
