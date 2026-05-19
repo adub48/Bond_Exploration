@@ -76,9 +76,9 @@ def graph_bonds():
                 "active": 4,  # Index of the default value
                 "currentvalue": {"prefix": "Coupon Rate: ", "font": {"size": 16}},
                 "steps": steps,
-                "x": 1.75,
-                "y": 2,
-                "xanchor": "right",
+                "x": 0.5,
+                "y": -0.15,
+                "xanchor": "center",
                 "yanchor": "top",
             }
         ]
