@@ -178,6 +178,8 @@ def correlation(files):
     plt.show()
     print("Correlation DataFrame:")
     print(corrs)
+    os.makedirs("output", exist_ok=True)
+    corrs.to_csv(os.path.join("output", "correlations.csv"))
 
 
 if __name__ == '__main__':
