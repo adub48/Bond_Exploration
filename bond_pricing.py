@@ -27,10 +27,10 @@ def get_current_yields(files):
     plt.show()
     return current_yields
 
-def price_bond(face_value, coupon_rate, maturities):
+def price_bond(yields, face_value, coupon_rate, maturities):
     prices = []
     for maturity in maturities:
-        discount_rate = np.interp(maturity, current_yields['Maturity'], current_yields['Yield'])/100
+        discount_rate = np.interp(maturity, yields['Maturity'], yields['Yield'])/100
         coupon_payment = (face_value * coupon_rate)
         discounted_payments = (coupon_payment / discount_rate) * (1-(1/(1+discount_rate))**maturity)
         discounted_face_value = (face_value / (1+discount_rate)**maturity)
@@ -38,14 +38,14 @@ def price_bond(face_value, coupon_rate, maturities):
         prices.append(present_value)
     return prices
 
-def graph_bonds():
+def graph_bonds(yields):
     #Bond parameters
     face_value = 2000  # Face value of the bond
     maturities = np.arange(1, 11)  #Maturity from 1 to 10 years
 
     #Initial slider data
     initial_coupon_rate = 0.05
-    prices = price_bond(face_value, initial_coupon_rate, maturities)
+    prices = price_bond(yields, face_value, initial_coupon_rate, maturities)
 
     fig = go.Figure()
     # Add the initial trace
@@ -63,7 +63,7 @@ def graph_bonds():
         step = {
             "method": "update",
             "args": [
-                {"y": [price_bond(face_value, rate, maturities)]},
+                {"y": [price_bond(yields, face_value, rate, maturities)]},
             ],
             "label": f"{rate:.2%}",  # Slider label
             "name": f"Coupon Rate"
@@ -147,8 +147,8 @@ def correlation(files):
 if __name__ == '__main__':
     file_list = ['DGS1', 'DGS3', 'DGS5', 'DGS7', 'DGS10']
     current_yields = get_current_yields(file_list)
-    price_bond(1000, .05, maturities= [4])
-    graph_bonds()
+    print(f"Bond price: ${price_bond(current_yields, 1000, .05, maturities=[4])[0]:,.2f}")
+    graph_bonds(current_yields)
     file_list = ['DGS3MO', 'DGS2', 'DGS10', 'FEDFUNDS']
     yield_curves(file_list)
     correlation(file_list)
