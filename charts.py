@@ -90,6 +90,8 @@ def correlation(files):
         df.set_index('Date', inplace=True)
         df.index = pd.to_datetime(df.index)
         df = df.loc[start_date:current_date]
+        # Resample to monthly so daily yield series aligns with monthly macro data
+        df = df.resample('MS').last().dropna()
         df[files[i]] = scaler.fit_transform(df[[files[i]]])
         ax.plot(df.index, df[files[i]], label=files[i])
         ax.set_xlabel('Date')
@@ -101,10 +103,16 @@ def correlation(files):
             data.set_index('Date', inplace=True)
             data.index = pd.to_datetime(data.index)
             data = data.loc[start_date:current_date]
-            data[measurement] = scaler.fit_transform(data[[measurement]])
-            ax.plot(data.index, data[measurement], label=measurement)
+            data = data.resample('MS').last().dropna()
+            if len(data) > 1:
+                data[measurement] = scaler.fit_transform(data[[measurement]])
+                ax.plot(data.index, data[measurement], label=measurement)
             ax.legend(loc='upper left')
-            corrs.loc[measurement, files[i]] = df[files[i]].corr(data[measurement])
+            aligned = df[[files[i]]].join(data[[measurement]], how='inner')
+            if len(aligned) > 1:
+                corrs.loc[measurement, files[i]] = aligned[files[i]].corr(aligned[measurement])
+            else:
+                corrs.loc[measurement, files[i]] = float('nan')
 
     plt.tight_layout(h_pad=4.0)
     print("Correlation DataFrame:")

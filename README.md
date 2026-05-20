@@ -12,6 +12,20 @@ Analyzes U.S. Treasury yield curves and prices bonds using real market data from
 - Correlates yield data against unemployment rate (UNRATE), core CPI (CPILFESL), and SPY
 - Exports the correlation matrix to `output/correlations.csv`
 
+## Project Structure
+
+```
+.
+├── main.py          # Entry point — orchestrates pricing, metrics, and charts
+├── charts.py        # Yield curve, interactive bond price chart, historical yields, correlations
+├── pricing.py       # Bond math: price_bond, bond_metrics, yield_to_maturity
+├── utils.py         # Shared helpers: filepath(), current_date, start_date
+├── get_data.py      # Fetches data from FRED and Yahoo Finance into data/
+├── data/            # CSV files written by get_data.py
+├── output/          # correlations.csv written at runtime
+└── requirements.txt
+```
+
 ## Setup
 
 ```bash
@@ -38,13 +52,13 @@ python get_data.py
 
 **Run analysis:**
 ```bash
-python bond_pricing.py
+python main.py
 ```
 
 ## Data
 
 Data is pulled from:
-- [FRED](https://fred.stlouisfed.org/) — Treasury yields, Fed Funds rate, CPI, unemployment
+- [FRED](https://fred.stlouisfed.org/) — Treasury yields (`DGS3MO`, `DGS1`, `DGS2`, `DGS3`, `DGS5`, `DGS7`, `DGS10`), Fed Funds rate (`FEDFUNDS`), core CPI (`CPILFESL`), unemployment (`UNRATE`)
 - Yahoo Finance — SPY monthly prices
 
 CSV files are saved to the `data/` directory.

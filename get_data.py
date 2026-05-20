@@ -3,6 +3,7 @@ from fredapi import Fred
 import os
 import yfinance as yf
 from dotenv import load_dotenv
+from utils import start_date
 
 load_dotenv()
 
@@ -10,9 +11,9 @@ def filepath(filename, base_dir=os.path.join(".", "data")):
     """Return CSV file path given ticker symbol."""
     return os.path.join(base_dir, f"{filename}.csv")
 
-def getSPYdata():
-    tempdf = yf.download('SPY', interval="1mo")
-    tempdf = tempdf['Close']['SPY']
+def get_spy_data():
+    """Download monthly SPY closing prices from Yahoo Finance and save to data/SPY.csv."""
+    tempdf = yf.download('SPY', start=start_date, interval="1mo")[('Close', 'SPY')]
     tempdf.name = 'SPY'
     data_to_csv(tempdf, 'SPY')
 
@@ -36,7 +37,7 @@ if __name__ == '__main__':
         raise ValueError("FRED_API_KEY not set. Add it to a .env file or export it as an environment variable.")
     ids = ['DGS3MO', 'DGS1', 'DGS2', 'DGS3', 'DGS5', 'DGS7', 'DGS10', 'FEDFUNDS', 'CPILFESL', 'UNRATE']
     get_fred_data(api_key, ids)
-    getSPYdata()
+    get_spy_data()
 
 
 
